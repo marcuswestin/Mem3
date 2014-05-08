@@ -1,35 +1,37 @@
 // http://guilhemmarty.com/flippy//
-// http://www.awwwards.com/touchswipe-a-jquery-plugin-for-touch-and-gesture-based-interaction.html
+
+function randomColor() {
+	var letters = '012345'.split('');
+	var color = '#';
+	color += letters[Math.round(Math.random() * 5)];
+	letters = '0123456789ABCDEF'.split('');
+	for (var i = 0; i < 5; i++) {
+		color += letters[Math.round(Math.random() * 15)];
+	}
+	return color
+}
 
 $(function(){
-	function randomColor() {
-		var letters = '012345'.split('');
-		var color = '#';        
-		color += letters[Math.round(Math.random() * 5)];
-		letters = '0123456789ABCDEF'.split('');
-		for (var i = 0; i < 5; i++) {
-			color += letters[Math.round(Math.random() * 15)];
-		}
-		return color
-	}
-	
-	var size = 320
-	$('.cube').css({ width:size, height:size })
-	var rotations = [
-		{ x:0, y:0, c:'red' },
-		{ x:90, y:0, c:'green' },
-		{ x:0, y:90, c:'steelblue' },
-		{ x:-90, y:0, c:'pink' },
-		{ x:0, y:-90, c:'orange' },
-		{ x:180, y:0, c:'magenta' }
+	var touch = (document.ontouchmove !== undefined)
+	var traqball = new Traqball({ stage:'viewport' })
+	var size = 220
+
+	var sides = [
+		{ x:0, y:0, c:'red', t:'z' },
+		{ x:90, y:0, c:'green', t:'y+' },
+		{ x:0, y:90, c:'steelblue', t:'x+' },
+		{ x:-90, y:0, c:'pink', t:'y-' },
+		{ x:0, y:-90, c:'orange', t:'x-'  },
+		{ x:180, y:0, c:'magenta', t:'z-' }
 	]
+	$('.cube').css({ width:size, height:size })
 	$('.cube .side').each(function(i, el) {
-		var rot = rotations[i]
+		var side = sides[i]
 		$(el).css({
 			width: size,
 			height: size,
-			background: rot.c,
-			WebkitTransform:'rotateX('+rot.x+'deg) rotateY('+rot.y+'deg) translateZ('+size/2+'px)'
+			textAlign: 'center',
+			WebkitTransform:'rotateX('+side.x+'deg) rotateY('+side.y+'deg) translateZ('+size/2+'px)'
 		})
 		
 		var html = ''
@@ -44,101 +46,34 @@ $(function(){
 			$(cardEl).css({ background:randomColor() })
 		})
 	})
-
-	var dirToDirType = {
-		'up': 'up/down',
-		'down': 'up/down',
-		'left': 'left/right',
-		'right': 'left/right'
-	}
 	
-	var dirTypeMirror = {
-		'left/right': 'up/down',
-		'up/down': 'left/right'
-	}
-	
-	var dirToSign = {
-		'up': 1,
-		'down': -1,
-		'left': -1,
-		'right': 1
-	}
-	
-	function swap(obj, propA, propB) {
-		var valA = obj[propA]
-		obj[propA] = obj[propB]
-		obj[propB] = valA
-	}
-	
-	var touch = (document.ontouchmove !== undefined)
-	
-	var viewport = {
-		x: 0,
-		y: 0,
-		z: 0,
-		el: $('.cube')[0],
-		dirTypeToAxis: {
-			'up/down': 'x',
-			'left/right': 'y',
-			'none': 'z'
-		},
-		move: function(dir) {
-			var dirType = dirToDirType[dir]
-			var sign = dirToSign[dir]
-
-			var axis = this.dirTypeToAxis[dirType]
-			this[axis] += sign * 90
-			swap(this.dirTypeToAxis, 'none', dirTypeMirror[dirType])
-			this.el.style['WebkitTransform'] = "rotateX("+this.x+"deg) rotateY("+this.y+"deg) rotateZ("+this.z+"deg)";
+	var eventNames = (touch
+		? { start:'touchstart', move:'touchmove', end:'touchend' }
+		: { start:'mousedown', move:'mousemove', end:'mouseup' }
+	)
+	$('.cube').on(eventNames.start, function(e) {
+		if (traqball.isSliding) {
+			return
 		}
-	}
-
-	var keyCodeToDir = {
-		'37': 'left',
-		'38': 'up',
-		'39': 'right',
-		'40': 'down'
-	}
-
-	$(document).keydown(function(evt) {
-		if (keyCodeToDir[evt.keyCode]) {
-			evt.preventDefault()
-			viewport.move(keyCodeToDir[evt.keyCode])
-		}
+		var didMove = false
+		$('.cube').on(eventNames.move, function(e) {
+			didMove = true
+		})
+		$('.cube').on(eventNames.end, function(e) {
+			if (!didMove) {
+				flip(e)
+			}
+			$('.cube').off(eventNames.move)
+			$('.cube').off(eventNames.end)
+		})
 	})
-	
-	$('.cube').swipe({
-		swipe: function(event, direction, distance, duration, fingerCount) {
-			couldBeClick = false
-			if (touch && fingerCount != 1) { return }
-			viewport.move(direction)
-		}
-	});
-	
-	if (touch) {
-		var couldBeClick = false
-		$('.cube').on('touchstart', function(e) {
-			couldBeClick = true
-		})
-		$('.cube').on('touchend', function(e) {
-			setTimeout(function() {
-				if (couldBeClick) {
-					flip(e);
-				}
-			}, 50)
-		})
-	} else {
-		$('.cube .side').on('click', function(e) {
-			flip(e)
-		})
-	}
 	
 	function flip(e) {
 		var $el = $(e.target)
 		if ($el.hasClass('flipped')) {
 			$el.removeClass('flipped').flippyReverse()
 		} else {
-			$el.addClass('flipped').flippy({ color_target:'red', verso:'flipped', depth:0.8 })
+			$el.addClass('flipped').flippy({ color_target:'red', verso:'din', depth:0.8 })
 		}
 	}
 	
