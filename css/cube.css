@@ -19,3 +19,15 @@ body {
 	padding: 0px;
 	background-color: rgb(50, 50, 50);
 }
+
+.cube .flipbox-container {
+	/*border: 1px solid white;*/
+}
+
+.cube .flipbox-container.matched {
+	/*border: 1px solid green;*/
+}
+
+.cube .flipbox-container.badMatch {
+	/*border: 1px solid red;*/
+}

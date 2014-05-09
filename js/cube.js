@@ -11,10 +11,30 @@ function randomColor() {
 	return color
 }
 
+function shuffle(array) { // fisher yates
+	var counter = array.length, temp, index;
+	while (counter > 0) {
+		index = Math.floor(Math.random() * counter);
+		counter--;
+		temp = array[counter];
+		array[counter] = array[index];
+		array[index] = temp;
+	}
+
+	return array;
+}
+
 $(function(){
 	var touch = (document.ontouchmove !== undefined)
 	var traqball = new Traqball({ stage:'viewport' })
 	var size = 180
+	
+	var $selectedCards = []
+	var matchesMade = 0
+
+	var cardNumbers = []
+	for (var i=0; i<24; i++) { cardNumbers.push(i + 1) }
+	cardNumbers = shuffle(cardNumbers)
 
 	var sides = [
 		{ x:0, y:0, c:'red', t:'z' },
@@ -25,6 +45,7 @@ $(function(){
 		{ x:180, y:0, c:'magenta', t:'z-' }
 	]
 	$('.cube').css({ width:size, height:size })
+	var cardIndex = 0
 	$('.cube .side').each(function(i, el) {
 		var side = sides[i]
 		$(el).css({
@@ -36,7 +57,13 @@ $(function(){
 		
 		var html = ''
 		for (var d=0; d<4; d++) {
-			html += '<div class="flipbox-container"><img class="flipbox" src="img/card-bg.jpg" /></div>'
+			var cardNumber = cardNumbers[cardIndex]
+			html += '\
+				<div class="flipbox-container" data-cardNumber="'+cardNumber+'">\
+					<img class="flipbox" src="img/card-bg.jpg" />\
+				</div>\
+			'
+			cardIndex += 1
 		}
 
 		$(el).html(html).find('.flipbox-container').css({
@@ -65,7 +92,7 @@ $(function(){
 				if (el.tagName == 'IMG') {
 					el = el.parentNode
 				}
-				flip(el)
+				selectCard(el)
 			}
 			$('.cube').off(eventNames.move)
 			$('.cube').off(eventNames.end)
@@ -76,21 +103,78 @@ $(function(){
 		return arr[Math.floor(Math.random() * arr.length)]
 	}
 	
-	function flip(el) {
-		var $el = $(el)
-		if ($el.hasClass('flipped')) {
-			$el.removeClass('flipped').flippyReverse()
+	var flipDuration = 350
+	function unselectCards() {
+		$.each($selectedCards, function(i, $card) {
+			$card.flippyReverse()
+			setTimeout(function() {
+				$card.removeClass('flipped').removeClass('badMatch')
+			}, flipDuration)
+		})
+		$selectedCards = []
+	}
+
+	var unselectCardsTimer
+	function selectCard(el) {
+		if ($selectedCards.length == 2) {
+			clearTimeout(unselectCardsTimer)
+			unselectCards()
+		}
+		
+		var $card = $(el)
+		if ($card.hasClass('matched') || $card.hasClass('flipped')) {
+			// Do nothing
 		} else {
-			$el.addClass('flipped').flippy({
-				color_target: "red",
+			$card.addClass('flipped').flippy({
+				duration:flipDuration,
+				color_target: "white",
 				direction:rand(['RIGHT', 'LEFT', 'BOTTOM', 'TOP']),
-				verso:'<img src="img/dino-1.jpg" width="'+size/2+'"/>',
-				depth:2
+				verso:'<img src="img/dino-'+cardNum($card)+'.jpg" width="'+size/2+'"/>',
+				depth:2,
+				onFinish:function() {
+					$selectedCards.push($card)
+					if ($selectedCards.length == 2) {
+						if (isMatchingSelectedCards()) {
+							markMatchingSelectedCards()
+							checkIfDone()
+						} else {
+							$.each($selectedCards, function(i, $card) {
+								$card.addClass('badMatch')
+							})
+							unselectCardsTimer = setTimeout(unselectCards, 1000)
+						}
+					}
+				}
 			})
 		}
+	}
+	
+	function cardNum($card) {
+		return parseInt($card.attr('data-cardNumber'))
+	}
+	
+	function isMatchingSelectedCards() {
+		var num1 = cardNum($selectedCards[0])
+		var num2 = cardNum($selectedCards[1])
+		return Math.ceil(num1 / 2) == Math.ceil(num2 / 2)
+	}
+	
+	function markMatchingSelectedCards() {
+		$.each($selectedCards, function(i, $card) {
+			$card.addClass('matched')
+		})
+		matchesMade += 1
+		$selectedCards = []
 	}
 	
 	$(document).on('touchstart', function($e) {
 		$e.preventDefault()
 	})
+	
+	function checkIfDone() {
+		if (matchesMade == 12) {
+			alert("Done")
+		}
+	}
 });
+
