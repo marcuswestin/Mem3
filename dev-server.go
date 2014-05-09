@@ -13,7 +13,7 @@ func logRequest(h http.Handler) http.Handler {
 }
 
 func main() {
-	address := ":8080"
+	address := ":80"
 	log.Println("Listening on", address)
 	panic(http.ListenAndServe(address, logRequest(http.FileServer(http.Dir(".")))))
 }
