@@ -14,7 +14,7 @@ function randomColor() {
 $(function(){
 	var touch = (document.ontouchmove !== undefined)
 	var traqball = new Traqball({ stage:'viewport' })
-	var size = 220
+	var size = 180
 
 	var sides = [
 		{ x:0, y:0, c:'red', t:'z' },
@@ -36,7 +36,7 @@ $(function(){
 		
 		var html = ''
 		for (var d=0; d<4; d++) {
-			html += '<div class="flipbox-container"><div class="flipbox"></div></div>'
+			html += '<div class="flipbox-container"><img class="flipbox" src="img/card-bg.jpg" /></div>'
 		}
 
 		$(el).html(html).find('.flipbox-container').css({
@@ -61,19 +61,32 @@ $(function(){
 		})
 		$('.cube').on(eventNames.end, function(e) {
 			if (!didMove) {
-				flip(e)
+				var el = e.target
+				if (el.tagName == 'IMG') {
+					el = el.parentNode
+				}
+				flip(el)
 			}
 			$('.cube').off(eventNames.move)
 			$('.cube').off(eventNames.end)
 		})
 	})
 	
-	function flip(e) {
-		var $el = $(e.target)
+	function rand(arr) {
+		return arr[Math.floor(Math.random() * arr.length)]
+	}
+	
+	function flip(el) {
+		var $el = $(el)
 		if ($el.hasClass('flipped')) {
 			$el.removeClass('flipped').flippyReverse()
 		} else {
-			$el.addClass('flipped').flippy({ color_target:'red', verso:'din', depth:0.8 })
+			$el.addClass('flipped').flippy({
+				color_target: "red",
+				direction:rand(['RIGHT', 'LEFT', 'BOTTOM', 'TOP']),
+				verso:'<img src="img/dino-1.jpg" width="'+size/2+'"/>',
+				depth:2
+			})
 		}
 	}
 	
