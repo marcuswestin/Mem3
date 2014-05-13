@@ -36,6 +36,22 @@ $(function(){
 	for (var i=0; i<24; i++) { cardNumbers.push(i + 1) }
 	cardNumbers = shuffle(cardNumbers)
 
+	preloadCardImages()
+	function preloadCardImages() {
+		var html = $.map(cardNumbers, function(i, cardNum) {
+			return cardHtml(cardNum+1)
+		}).join('\n')
+		$(document.createElement('asd')).html(html).appendTo(document.body).css({
+			position:'absolute',
+			top:-999999,
+			left:-999999
+		})
+	}
+	
+	function cardHtml(num) {
+		return '<img src="img/dino-'+num+'.jpg" width="'+cardSize/2+'"/>'
+	}
+
 	var sides = [
 		{ x:0, y:0, c:'red', t:'z' },
 		{ x:90, y:0, c:'green', t:'y+' },
@@ -129,7 +145,7 @@ $(function(){
 				duration:flipDuration,
 				color_target: "white",
 				direction:rand(['RIGHT', 'LEFT', 'BOTTOM', 'TOP']),
-				verso:'<img src="img/dino-'+cardNum($card)+'.jpg" width="'+cardSize/2+'"/>',
+				verso:cardHtml(cardNum($card)),
 				depth:2,
 				onFinish:function() {
 					$selectedCards.push($card)
