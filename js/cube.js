@@ -27,7 +27,7 @@ function shuffle(array) { // fisher yates
 $(function(){
 	var touch = (document.ontouchmove !== undefined)
 	var traqball = new Traqball({ stage:'viewport' })
-	var size = 180
+	var cardSize = 180
 	
 	var $selectedCards = []
 	var matchesMade = 0
@@ -44,15 +44,15 @@ $(function(){
 		{ x:0, y:-90, c:'orange', t:'x-'  },
 		{ x:180, y:0, c:'magenta', t:'z-' }
 	]
-	$('.cube').css({ width:size, height:size })
+	$('.cube').css({ width:cardSize, height:cardSize })
 	var cardIndex = 0
 	$('.cube .side').each(function(i, el) {
 		var side = sides[i]
 		$(el).css({
-			width: size,
-			height: size,
+			width: cardSize,
+			height: cardSize,
 			textAlign: 'center',
-			WebkitTransform:'rotateX('+side.x+'deg) rotateY('+side.y+'deg) translateZ('+size/2+'px)'
+			WebkitTransform:'rotateX('+side.x+'deg) rotateY('+side.y+'deg) translateZ('+cardSize/2+'px)'
 		})
 		
 		var html = ''
@@ -67,8 +67,8 @@ $(function(){
 		}
 
 		$(el).html(html).find('.flipbox-container').css({
-			width:size/2, height:size/2, 'float':'left'
-		}).find('.flipbox').css({ width:size/2, height:size/2 })
+			width:cardSize/2, height:cardSize/2, 'float':'left'
+		}).find('.flipbox').css({ width:cardSize/2, height:cardSize/2 })
 		$(el).find('.flipbox-container').each(function(i, cardEl) {
 			$(cardEl).css({ background:randomColor() })
 		})
@@ -129,7 +129,7 @@ $(function(){
 				duration:flipDuration,
 				color_target: "white",
 				direction:rand(['RIGHT', 'LEFT', 'BOTTOM', 'TOP']),
-				verso:'<img src="img/dino-'+cardNum($card)+'.jpg" width="'+size/2+'"/>',
+				verso:'<img src="img/dino-'+cardNum($card)+'.jpg" width="'+cardSize/2+'"/>',
 				depth:2,
 				onFinish:function() {
 					$selectedCards.push($card)
