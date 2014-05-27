@@ -1,16 +1,5 @@
 // http://guilhemmarty.com/flippy//
 
-function randomColor() {
-	var letters = '012345'.split('');
-	var color = '#';
-	color += letters[Math.round(Math.random() * 5)];
-	letters = '0123456789ABCDEF'.split('');
-	for (var i = 0; i < 5; i++) {
-		color += letters[Math.round(Math.random() * 15)];
-	}
-	return color
-}
-
 function shuffle(array) { // fisher yates
 	var counter = array.length, temp, index;
 	while (counter > 0) {
@@ -28,6 +17,7 @@ $(function(){
 	var touch = (document.ontouchmove !== undefined)
 	var traqball = new Traqball({ stage:'viewport' })
 	var cardSize = 180
+	var attemptsMade = 0
 	
 	var $selectedCards = []
 	var matchesMade = 0
@@ -35,7 +25,35 @@ $(function(){
 	var cardNumbers = []
 	for (var i=0; i<24; i++) { cardNumbers.push(i + 1) }
 	cardNumbers = shuffle(cardNumbers)
-
+	
+	var imgNames = [
+		'img/ankylosaurus 310.jpg',
+		'img/ankylosaurus skeleton 310.jpg',
+		'img/brachiosaurus 310.jpg',
+		'img/brachiosaurus skeleton 310.jpg',
+		'img/dilophosaurus 310.jpg',
+		'img/dilophosaurus skeleton 310.jpg',
+		'img/pachycephalosaurus 310.jpg',
+		'img/pachycephalosaurus skeleton 310.jpg',
+		'img/parasaurolophus 310.jpg',
+		'img/parasaurolophus skeleton 310.jpg',
+		'img/plesiosaurus 310.jpg',
+		'img/plesiosaurus skeleton 310.jpg',
+		'img/pterodactyl 310.jpg',
+		'img/pterodactyl skeleton 310.jpg',
+		'img/rex 310.jpg',
+		'img/rex skeleton 310.jpg',
+		'img/spinosaurus 310.jpg',
+		'img/spinosaurus skeleton 310.jpg',
+		'img/stegosaurus 310.jpg',
+		'img/stegosaurus skeleton 310.jpg',
+		'img/triceratops 310.jpg',
+		'img/triceratops skeleton 310.jpg',
+		'img/velociraptor 310.jpg',
+		'img/velociraptor skeleton 310.jpg'
+	]
+	
+	
 	preloadCardImages()
 	function preloadCardImages() {
 		var html = $.map(cardNumbers, function(i, cardNum) {
@@ -48,9 +66,14 @@ $(function(){
 		})
 	}
 	
-	function cardHtml(num) {
-		return '<img src="img/dino-'+num+'.jpg" width="'+cardSize/2+'"/>'
+	function cardHtml(cardNum) {
+		return '<img src="'+imgNames[cardNum-1]+'" width="'+cardSize/2+'"/>'
 	}
+	
+	$('.cube').parent().append('<div id="status"></div>').find('#status').css({
+		width: cardSize*1.6
+	})
+	updateStatus()
 
 	var sides = [
 		{ x:0, y:0, c:'red', t:'z' },
@@ -76,7 +99,7 @@ $(function(){
 			var cardNumber = cardNumbers[cardIndex]
 			html += '\
 				<div class="flipbox-container" data-cardNumber="'+cardNumber+'">\
-					<img class="flipbox" src="img/card-bg.jpg" />\
+					<img class="flipbox" src="img/card-bg2.jpg" />\
 				</div>\
 			'
 			cardIndex += 1
@@ -86,7 +109,7 @@ $(function(){
 			width:cardSize/2, height:cardSize/2, 'float':'left'
 		}).find('.flipbox').css({ width:cardSize/2, height:cardSize/2 })
 		$(el).find('.flipbox-container').each(function(i, cardEl) {
-			$(cardEl).css({ background:randomColor() })
+			$(cardEl).css({ background:'white' })
 		})
 	})
 	
@@ -152,19 +175,21 @@ $(function(){
 					if ($selectedCards.length == 2) {
 						if (isMatchingSelectedCards()) {
 							markMatchingSelectedCards()
-							checkIfDone()
 						} else {
 							$.each($selectedCards, function(i, $card) {
 								$card.addClass('badMatch')
 							})
 							unselectCardsTimer = setTimeout(unselectCards, 1000)
 						}
+						attemptsMade += 1
+						updateStatus()
 					}
 				}
 			})
 		}
 	}
 	
+	// card numbers go from 1-N. Card pairs have adjacent numbers, e.g 1&2, 3&4, etc
 	function cardNum($card) {
 		return parseInt($card.attr('data-cardNumber'))
 	}
@@ -183,14 +208,23 @@ $(function(){
 		$selectedCards = []
 	}
 	
+	function updateStatus() {
+		var html
+		if (!attemptsMade) {
+			html = '<span class="greeting">DINO</br>MEMORY</span>'
+		} else if (matchesMade != 12) {
+			html = (
+				matchesMade+' '+(matchesMade == 1 ? 'match' : 'matches')+'<br/> '+
+				attemptsMade + ' '+(attemptsMade == 1 ? 'try' : 'tries')
+			)
+		} else {
+			html = 'Boom! Done!<br/>In '+attemptsMade+' tries.'
+		}
+		$('#status').empty().html(html)
+	}
+
 	$(document).on('touchstart', function($e) {
 		$e.preventDefault()
 	})
-	
-	function checkIfDone() {
-		if (matchesMade == 12) {
-			alert("Done")
-		}
-	}
 });
 
