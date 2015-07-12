@@ -1,9 +1,10 @@
-body {
+html, body {
 	margin: 0;
 	background: #ccc;
 	background: -webkit-linear-gradient(#917c4d, #ffffff);
 	background: linear-gradient(#917c4d, #ffffff); /* Standard syntax (must be last) */
 	font-family: "American Typewriter";
+	height: 100%;
 }
 
 .viewport {

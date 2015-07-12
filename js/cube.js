@@ -54,7 +54,6 @@ $(function(){
 	]
 	
 	
-	preloadCardImages()
 	function preloadCardImages() {
 		var html = $.map(cardNumbers, function(i, cardNum) {
 			return cardHtml(cardNum+1)
@@ -137,6 +136,8 @@ $(function(){
 			$('.cube').off(eventNames.end)
 		})
 	})
+	
+	preloadCardImages()
 	
 	function rand(arr) {
 		return arr[Math.floor(Math.random() * arr.length)]
